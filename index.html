@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meine Streak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ee;
+    --bg2: #eceae4;
+    --bg3: #e0ddd5;
+    --card: #ffffff;
+    --text: #1a1917;
+    --text2: #6b6860;
+    --text3: #a09d97;
+    --border: rgba(26,25,23,0.1);
+    --border2: rgba(26,25,23,0.18);
+    --sugar: #d4a373;
+    --sugar-bg: #fdf3e7;
+    --sugar-done: #a0522d;
+    --sport: #4a7c59;
+    --sport-bg: #e8f5ec;
+    --sport-done: #2d5a3d;
+    --alc: #7b6fa0;
+    --alc-bg: #f0eef8;
+    --alc-done: #4a3f72;
+    --streak-color: #c84b31;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #181714;
+      --bg2: #211f1b;
+      --bg3: #2a2824;
+      --card: #211f1b;
+      --text: #f0ede8;
+      --text2: #8a8780;
+      --text3: #55524d;
+      --border: rgba(240,237,232,0.08);
+      --border2: rgba(240,237,232,0.14);
+      --sugar-bg: #2e2318;
+      --sport-bg: #162218;
+      --alc-bg: #1e1b2a;
+    }
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .container { max-width: 560px; margin: 0 auto; }
+
+  header {
+    margin-bottom: 2.5rem;
+  }
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .since {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 0.5rem;
+  }
+
+  /* Setup overlay */
+  #setup-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .setup-card {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 2rem;
+    width: 100%;
+    max-width: 460px;
+  }
+  .setup-card h2 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .setup-card p {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+  .setup-card label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    margin-bottom: 0.4rem;
+  }
+  .setup-card input {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .setup-card input:focus { border-color: var(--sport); }
+  .setup-hint {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .setup-error {
+    font-size: 12px;
+    color: var(--streak-color);
+    margin-top: 0.75rem;
+    min-height: 1rem;
+  }
+
+  /* Stats row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-num.s-sugar { color: var(--sugar-done); }
+  .stat-num.s-sport { color: var(--sport-done); }
+  .stat-num.s-alc { color: var(--alc-done); }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .streak-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .streak-label { font-size: 13px; color: var(--text2); }
+  .streak-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--streak-color);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+  .ld-sugar { background: var(--sugar); }
+  .ld-sport { background: var(--sport); }
+  .ld-alc { background: var(--alc); }
+
+  /* Week blocks */
+  .week-block { margin-bottom: 0.5rem; }
+  .week-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0.5rem 0 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .week-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .day-row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+  }
+  .day-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+  .day-name.is-today { color: var(--text); font-weight: 500; }
+  .day-future .day-name { opacity: 0.3; }
+
+  .goals-row { display: flex; gap: 7px; }
+
+  .goal-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: transform 0.1s, background 0.15s, border-color 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .goal-btn:hover { background: var(--bg3); transform: scale(1.05); }
+  .goal-btn:active { transform: scale(0.93); }
+  .goal-btn.done-sugar { background: var(--sugar-bg); border-color: var(--sugar); }
+  .goal-btn.done-sport { background: var(--sport-bg); border-color: var(--sport); }
+  .goal-btn.done-alc { background: var(--alc-bg); border-color: var(--alc); }
+  .day-future .goal-btn { opacity: 0.2; pointer-events: none; }
+
+  .check-icon {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+  }
+  .goal-btn.done-sugar .check-icon,
+  .goal-btn.done-sport .check-icon,
+  .goal-btn.done-alc .check-icon { display: flex; }
+  .goal-btn.done-sugar .emoji-icon,
+  .goal-btn.done-sport .emoji-icon,
+  .goal-btn.done-alc .emoji-icon { display: none; }
+
+  .check-sugar { color: var(--sugar-done); font-size: 18px; font-weight: 500; }
+  .check-sport { color: var(--sport-done); font-size: 18px; font-weight: 500; }
+  .check-alc { color: var(--alc-done); font-size: 18px; font-weight: 500; }
+
+  .load-more {
+    text-align: center;
+    padding: 2rem 0 1rem;
+  }
+  .btn-more {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: none;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-more:hover { background: var(--bg2); color: var(--text); }
+
+  .saving-indicator {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .saving-indicator.show { opacity: 1; }
+
+  .settings-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem 0;
+  }
+  .settings-btn:hover { color: var(--text2); }
+
+  @media (max-width: 420px) {
+    body { padding: 1.5rem 0.85rem 4rem; }
+    h1 { font-size: 22px; }
+    .goal-btn { width: 34px; height: 34px; font-size: 15px; }
+    .goals-row { gap: 5px; }
+    .day-row { grid-template-columns: 64px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="setup-overlay" style="display:none;">
+  <div class="setup-card">
+    <h2>GitHub einrichten</h2>
+    <p>Dein Streak-Stand wird in einem GitHub-Repository gespeichert und ist so auf allen Geräten synchron.</p>
+    <label>GitHub Repository</label>
+    <input type="text" id="setup-repo" placeholder="grantz-svg/streak-kalender" autocomplete="off" />
+    <div class="setup-hint">Format: benutzername/repo-name – das Repo muss existieren und öffentlich sein.</div>
+    <label>Personal Access Token</label>
+    <input type="password" id="setup-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+    <div class="setup-hint">Benötigte Berechtigungen: <strong>repo</strong> (Contents read &amp; write). Token wird nur lokal in deinem Browser gespeichert.</div>
+    <button class="btn-primary" onclick="saveSetup()">Speichern &amp; starten</button>
+    <div class="setup-error" id="setup-error"></div>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="logo">Habit Tracker</div>
+    <h1>Meine Streak</h1>
+    <div class="since" id="since-label"></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num s-sugar" id="cnt-sugar">0</div><div class="stat-label">Süßigkeitenfrei</div></div>
+    <div class="stat"><div class="stat-num s-sport" id="cnt-sport">0</div><div class="stat-label">Sport-Tage</div></div>
+    <div class="stat"><div class="stat-num s-alc" id="cnt-alc">0</div><div class="stat-label">Alkoholfrei</div></div>
+  </div>
+
+  <div class="streak-bar">
+    <span class="streak-label">Aktueller Gesamt-Streak (alle 3 Ziele)</span>
+    <span class="streak-val" id="streak-val">0 Tage</span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot ld-sugar"></div>Keine Süßigkeiten</div>
+    <div class="legend-item"><div class="legend-dot ld-sport"></div>Sport</div>
+    <div class="legend-item"><div class="legend-dot ld-alc"></div>Kein Alkohol</div>
+  </div>
+
+  <div id="calendar"></div>
+
+  <div class="load-more">
+    <button class="btn-more" onclick="loadMoreWeeks()">+ 4 weitere Wochen laden</button>
+  </div>
+</div>
+
+<div class="saving-indicator" id="saving">Wird gespeichert…</div>
+<button class="settings-btn" onclick="openSetup()">⚙ Einstellungen</button>
+
+<script>
+const START_DATE = new Date(2026, 4, 27);
+const GOALS = [
+  { key: 'sugar', emoji: '🍬', label: 'Keine Süßigkeiten', doneClass: 'done-sugar', checkClass: 'check-sugar' },
+  { key: 'sport', emoji: '🏃', label: 'Sport gemacht', doneClass: 'done-sport', checkClass: 'check-sport' },
+  { key: 'alc',   emoji: '🍺', label: 'Kein Alkohol', doneClass: 'done-alc', checkClass: 'check-alc' }
+];
+const DAYS = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+const MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+let data = {};
+let weeksShown = 8;
+let ghRepo = '';
+let ghToken = '';
+let ghFileSha = null;
+let saveTimer = null;
+
+function dateKey(d) { return d.toISOString().slice(0,10); }
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function today() { const t = new Date(); t.setHours(0,0,0,0); return t; }
+
+// --- GitHub API ---
+async function ghGet() {
+  if (!ghRepo || !ghToken) return null;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${ghRepo}/contents/streak-data.json`, {
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (r.status === 404) return { exists: false };
+    if (!r.ok) return null;
+    const j = await r.json();
+    ghFileSha = j.sha;
+    const decoded = JSON.parse(atob(j.content.replace(/\n/g,'')));
+    return { exists: true, data: decoded };
+  } catch(e) { return null; }
+}
+
+async function ghPut(payload) {
+  if (!ghRepo || !ghToken) return false;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  const body = { message: 'Update streak data', content };
+  if (ghFileSha) body.sha = ghFileSha;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${ghRepo}/contents/streak-data.json`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${ghToken}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) return false;
+    const j = await r.json();
+    ghFileSha = j.content.sha;
+    return true;
+  } catch(e) { return false; }
+}
+
+// --- Setup ---
+function openSetup() {
+  document.getElementById('setup-repo').value = ghRepo;
+  document.getElementById('setup-token').value = ghToken;
+  document.getElementById('setup-overlay').style.display = 'flex';
+}
+
+async function saveSetup() {
+  const repo = document.getElementById('setup-repo').value.trim();
+  const token = document.getElementById('setup-token').value.trim();
+  const err = document.getElementById('setup-error');
+  err.textContent = 'Verbindung wird geprüft…';
+  if (!repo || !token) { err.textContent = 'Bitte beide Felder ausfüllen.'; return; }
+  ghRepo = repo; ghToken = token;
+  const result = await ghGet();
+  if (result === null) {
+    err.textContent = 'Verbindung fehlgeschlagen. Bitte Token und Repo-Name prüfen.';
+    return;
+  }
+  localStorage.setItem('streak_gh_repo', repo);
+  localStorage.setItem('streak_gh_token', token);
+  if (result.exists) { data = result.data; }
+  document.getElementById('setup-overlay').style.display = 'none';
+  renderAll();
+}
+
+function scheduleSave() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    showSaving(true);
+    await ghPut(data);
+    showSaving(false);
+  }, 800);
+}
+
+function showSaving(on) {
+  const el = document.getElementById('saving');
+  if (on) el.classList.add('show'); else setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+// --- Render ---
+function renderAll() {
+  const t = today();
+  const sinceLabel = document.getElementById('since-label');
+  sinceLabel.textContent = `Gestartet am ${START_DATE.getDate()}. ${MONTHS[START_DATE.getMonth()]} ${START_DATE.getFullYear()}`;
+
+  // counts
+  let cs=0, csp=0, ca=0;
+  Object.values(data).forEach(d => {
+    if (d.sugar) cs++;
+    if (d.sport) csp++;
+    if (d.alc) ca++;
+  });
+  document.getElementById('cnt-sugar').textContent = cs;
+  document.getElementById('cnt-sport').textContent = csp;
+  document.getElementById('cnt-alc').textContent = ca;
+
+  // streak (all 3, consecutive days back from today)
+  let streak = 0;
+  for (let i=0; i<365; i++) {
+    const d = addDays(t, -i);
+    if (d < START_DATE) break;
+    const k = dateKey(d);
+    if (data[k] && data[k].sugar && data[k].sport && data[k].alc) streak++;
+    else if (i > 0) break;
+  }
+  document.getElementById('streak-val').textContent = `${streak} ${streak === 1 ? 'Tag' : 'Tage'}`;
+
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const t = today();
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+
+  for (let w = 0; w < weeksShown; w++) {
+    const wStart = addDays(START_DATE, w * 7);
+    const block = document.createElement('div');
+    block.className = 'week-block';
+
+    const wh = document.createElement('div');
+    wh.className = 'week-header';
+    wh.textContent = `Woche ${w+1}  ·  ${wStart.getDate()}. ${MONTHS[wStart.getMonth()]}`;
+    block.appendChild(wh);
+
+    for (let d = 0; d < 7; d++) {
+      const date = addDays(wStart, d);
+      date.setHours(0,0,0,0);
+      const key = dateKey(date);
+      const isToday = date.getTime() === t.getTime();
+      const isFuture = date > t;
+
+      const row = document.createElement('div');
+      row.className = 'day-row' + (isFuture ? ' day-future' : '');
+
+      const dn = document.createElement('div');
+      dn.className = 'day-name' + (isToday ? ' is-today' : '');
+      dn.textContent = `${DAYS[date.getDay()]} ${String(date.getDate()).padStart(2,'0')}.${String(date.getMonth()+1).padStart(2,'0')}`;
+      row.appendChild(dn);
+
+      const gr = document.createElement('div');
+      gr.className = 'goals-row';
+
+      GOALS.forEach(g => {
+        const done = data[key] && data[key][g.key];
+        const btn = document.createElement('button');
+        btn.className = 'goal-btn' + (done ? ` ${g.doneClass}` : '');
+        btn.title = g.label;
+        btn.setAttribute('aria-label', g.label + (done ? ' (erledigt)' : ''));
+        btn.innerHTML = `
+          <span class="emoji-icon">${g.emoji}</span>
+          <span class="check-icon"><span class="${g.checkClass}">✓</span></span>
+        `;
+        if (!isFuture) {
+          btn.addEventListener('click', () => {
+            if (!data[key]) data[key] = {};
+            data[key][g.key] = !data[key][g.key];
+            renderAll();
+            scheduleSave();
+          });
+        }
+        gr.appendChild(btn);
+      });
+
+      row.appendChild(gr);
+      block.appendChild(row);
+    }
+    cal.appendChild(block);
+  }
+}
+
+function loadMoreWeeks() {
+  weeksShown += 4;
+  renderCalendar();
+}
+
+// --- Init ---
+async function init() {
+  ghRepo = localStorage.getItem('streak_gh_repo') || '';
+  ghToken = localStorage.getItem('streak_gh_token') || '';
+
+  if (!ghRepo || !ghToken) {
+    document.getElementById('setup-overlay').style.display = 'flex';
+    document.getElementById('setup-repo').value = 'grantz-svg/streak-kalender';
+    return;
+  }
+
+  const result = await ghGet();
+  if (result && result.exists) data = result.data;
+  renderAll();
+}
+
+init();
+</script>
+</body>
+</html>
