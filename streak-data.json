@@ -2,6 +2,11 @@
   "2026-05-24": {
     "sugar": false,
     "sport": false,
+    "alc": false
+  },
+  "2026-05-25": {
+    "sugar": true,
+    "sport": true,
     "alc": true
   }
 }
