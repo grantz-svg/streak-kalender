@@ -16,7 +16,7 @@
   },
   "2026-05-27": {
     "sport": true,
-    "alc": false,
-    "sugar": true
+    "alc": true,
+    "sugar": false
   }
 }
