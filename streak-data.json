@@ -30,6 +30,7 @@
     "alc": true
   },
   "2026-05-30": {
-    "sugar": false
+    "sugar": true,
+    "sport": true
   }
 }
