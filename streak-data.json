@@ -123,9 +123,11 @@
   },
   "2026-06-19": {
     "sugar": true,
-    "sport": true
+    "sport": true,
+    "alc": true
   },
   "2026-06-20": {
-    "sugar": true
+    "sugar": true,
+    "alc": true
   }
 }
