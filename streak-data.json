@@ -136,6 +136,8 @@
     "sport": true
   },
   "2026-06-22": {
-    "sport": true
+    "sport": true,
+    "alc": true,
+    "sugar": true
   }
 }
