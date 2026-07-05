@@ -178,6 +178,11 @@
     "sport": true
   },
   "2026-07-01": {
-    "sugar": true
+    "sugar": true,
+    "alc": true
+  },
+  "2026-07-02": {
+    "sugar": true,
+    "alc": true
   }
 }
