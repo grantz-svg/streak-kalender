@@ -282,5 +282,10 @@
   },
   "2026-07-23": {
     "sport": true
+  },
+  "2026-07-24": {
+    "sugar": true,
+    "sport": true,
+    "alc": true
   }
 }
