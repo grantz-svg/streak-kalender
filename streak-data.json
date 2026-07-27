@@ -289,5 +289,8 @@
     "sugar": false,
     "sport": true,
     "alc": false
+  },
+  "2026-07-25": {
+    "alc": true
   }
 }
